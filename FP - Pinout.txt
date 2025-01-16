@@ -1,0 +1,19 @@
+RC522 Module
+3.3v 	-> 	3.3v
+GND	->	GND
+G23	->	MOSI
+G19	->	MISO
+G18	->	SCK
+G5	->	SDA (SS)
+G0	->	RST
+
+ST7735 TFT Module
+3.3v	->	Lite
+3.3v	->	VCC
+GND	->	GND
+G23	->	MOSI
+G19	->	MISO
+G18	->	SCK
+G22	->	D/C
+G21	->	SDA (SS/TFT_CS)
+G2	->	RST

@@ -1,6 +1,10 @@
-int xPin = A0;
-int yPin = A1;
-int zPin = A2;
+#define xPin    0
+#define yPin    1
+#define zPin    2
+
+// int xPin = A0;
+// int yPin = A1;
+// int zPin = A2;
 int speakerPin = D3;
 
 void setup() {

@@ -1,0 +1,15 @@
+name: Close Master/Main PRs
+
+on:
+  pull_request_target:
+    types: [ opened, ready_for_review ]
+    
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    if: ${{github.head_ref == 'master' || github.head_ref == 'main'}}
+    
+    steps:    
+    - uses: superbrothers/close-pull-request@v3
+      with:
+        comment: "Thank you for contributing to the repository. Unfortunately, you have submitted your pull request from the master/main branch. We suggest you follow [the git usage documentation](https://docs.spacestation14.com/en/general-development/setup/git-for-the-ss14-developer.html). \n\n You can move your current work from the master branch to another branch by [branching](https://git-scm.com/docs/git-branch) from and [resetting](https://git-scm.com/docs/git-reset) the master branch."

@@ -1,0 +1,17 @@
+name: Check for Merge Conflicts
+
+on:
+  pull_request_target:
+    types: [ opened, reopened, synchronize, ready_for_review ]
+
+jobs:
+  Label:
+    if: ( github.event.pull_request.draft == false )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Merge Conflicts
+        uses: eps1lon/actions-label-merge-conflict@v3.0.0
+        with:
+          dirtyLabel: "Merge Conflict"
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          commentOnDirty: "This pull request has conflicts, please fix these before it is evaluated."

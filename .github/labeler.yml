@@ -1,0 +1,45 @@
+"Changes: Audio":
+  - changed-files:
+    - any-glob-to-any-file:
+        -  "**/*.ogg"
+        - "**/*.mp3"
+        - "**/*.wav"
+
+"Changes: C/C++":
+  - changed-files:
+    - any-glob-to-any-file:
+        - "**/*.c"
+        - "**/*.cpp"
+
+"Changes: Headers":
+  - changed-files:
+    -  any-glob-to-any-file: "**/*.h"
+
+"Changes: Config":
+- changed-files:
+  - any-glob-to-any-file:
+    - "**/*.toml"
+    - "**/*.config"
+    - "*.json"
+    - ".github/*.yml"
+    - ".github/*.json"
+    - ".vscode/*.json"
+    - ".editorconfig"
+
+"Changes: Documentation":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.txt"
+      - "**/*.md"
+
+"Changes: Images":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.png"
+      - "**/*.jpg"
+      - "**/*.jpeg"
+      - "**/*.webp"
+
+"Changes: Workflow":
+  - changed-files:
+    - any-glob-to-any-file: ".github/workflows/*.yml"

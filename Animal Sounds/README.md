@@ -15,3 +15,6 @@ The files correspond to the following animal noises, and can be changed as one w
 It should be noted that changes to the order of these files, via changes to the naming scheme, must be reflected in the program to match the display and algorithm.
 
 Another subject of note, it the file naming scheme **must follow** the same pattern. The files should be named for best accuracy and to work with the DFPlayer Mini.
+
+### Acknowledgements
+The following sound files in this directory are __Royalty Free__ and do not fall under the AGPL-3.0 License.

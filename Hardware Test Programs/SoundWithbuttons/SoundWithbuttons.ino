@@ -14,8 +14,8 @@ bool isPlaying = false;  // Flag to indicate if sound is playing
 // Create the Player object
 DFRobotDFPlayerMini player;
 
-int volume = 25;         // Initial volume (0 to 30)
-int currentFile = 1;     // Start with the first MP3 file
+int volume = 15;         // Initial volume (0 to 30)
+int currentFile = 3;     // Start with the first MP3 file
 
 void setup() {
   // Initialize USB serial port for debugging
@@ -43,7 +43,7 @@ void loop() {
   // Check if "Volume Up" button is pressed
   if (digitalRead(buttonVolumeUp) == HIGH) { // Button pressed (LOW due to pull-up)
     if (volume < 30) { // Max volume is 30
-      volume++;
+      volume = volume + 3;
       player.volume(volume);
       Serial.print("Volume increased to: ");
       Serial.println(volume);
@@ -54,7 +54,7 @@ void loop() {
   // Check if "Volume Down" button is pressed
   if (digitalRead(buttonVolumeDown) == HIGH) { // Button pressed (LOW due to pull-up)
     if (volume > 0) { // Min volume is 0
-      volume--;
+      volume = volume - 3;
       player.volume(volume);
       Serial.print("Volume decreased to: ");
       Serial.println(volume);

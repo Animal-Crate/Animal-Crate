@@ -100,17 +100,6 @@ void setup()
 
 void loop()
 {
-  while (isButtonPressed == LOW)    // Button reads as LOW, 0, and false.
-  {
-    isButtonPressed = digitalRead(BUTTON_PIN);
-
-    if (isButtonPressed)
-      break;
-
-    Serial.println(F("Button not pressed. Waiting 750 ms before checking again."));
-    delay(750);
-  }
-
   /* Integration Code */
     // Check if "Volume Up" button is pressed
   if (digitalRead(VOLUME_UP) == HIGH) { // Button pressed (LOW due to pull-up)
@@ -202,12 +191,10 @@ void loop()
 }
 
 /* Functions for displaying text and/or shapes to the TFT ST7735 Display. */
-/* ------------------------------ */
-/* drawTextAt - print text to tft */
-/* display screen at specific     */
-/* cursor with textwrap and color */
-/* decided by parameters.         */
-/* ------------------------------ */
+/// <summary>
+///   Print text to TFT Display Screen at specific cursor with texture and
+///   color decided by parameters.
+/// </summary>
 void drawTextAt(uint8_t x, uint8_t y, char *text, uint16_t color)
 {
   led.setCursor(x, y);
@@ -216,14 +203,12 @@ void drawTextAt(uint8_t x, uint8_t y, char *text, uint16_t color)
   led.print(text);
 }
 
-/* ------------------------------ */
-/* resetAll - reset cursor to     */
-/* origin (0, 0) and set entire   */
-/* screen to white, delay for 500 */
-/* milliseconds and then set to   */
-/* black and print to Serial that */
-/* the screen has been reset.     */
-/* ------------------------------ */
+
+/// <summary>
+///   Reset cursor to origin (0, 0) and set entire screen to white, delay for
+///   500 milliseconds and then set to black and print to Serial that the
+///   screen has been reset.
+/// </summary>
 void resetAll()
 {
   led.setCursor(0, 0);
@@ -235,23 +220,19 @@ void resetAll()
 }
 
 /* Functions for dumping information from byte arrays, specifically for RC522 module. */
-/* ------------------------------ */
-/* convertByte - converts a byte  */
-/* array to characters for use in */
-/* other functions                 */
-/* ------------------------------ */
+/// <summary>
+///   Converts a byte array to characters for use in other functions.
+/// </summary>
 void convertByte(byte *buffer, byte bufferSize)
 {
   for (uint8_t i = 0; i < bufferSize; i++)
     sprintf(&uid[i*2], "%02X", rfid.uid.uidByte[i]);
 }
 
-/* ------------------------------ */
-/* printHex - print to serial     */
-/* window the bytes from a buffer */
-/* with spaces for each byte in   */
-/* HEXadecimal format.            */
-/* ------------------------------ */
+/// <summary>
+///   Print to Serial window the bytes from a buffer with spaces for each byte in
+///   HEXadecimal format.
+/// </summary>
 void printHex(byte *buffer, byte bufferSize)            // Print information in Hex.
 {
   for (uint8_t i = 0; i < bufferSize; i++) 
@@ -262,12 +243,10 @@ void printHex(byte *buffer, byte bufferSize)            // Print information in 
     }
 }
 
-/* ------------------------------ */
-/* printDec - print to serial     */
-/* window the bytes from a buffer */
-/* with spaces for each byte in   */
-/* DECimal format.                */
-/* ------------------------------ */
+/// <summary>
+///   Print to Serial window the bytes from a buffer with spaces for each byte in
+///   DECimal format.
+/// </summary>
 void printDec(byte *buffer, byte bufferSize)            // Print information in Dec.
 {
   for (uint8_t i = 0; i < bufferSize; i++)

@@ -14,7 +14,7 @@ Before compiling the programming in this repository, some libraries are necessar
 
 The following libraries are required for compiling and uploading to an ESP-32.
 - The Scanner System utilizes the following libraries:
-  - [Adafruit GFX Library](https://github.com/adafruit/Adafruit-GFX-Library)
+  - [Adafruit GFX Library](https://github.com/adafruit/Adafruit-GFX-Library) (For Testing)
   - [Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library) (For Testing)
   - [MFRC522](https://github.com/Animal-Crate/Animal-Crate/tree/master/MFRC522)
 - The Sound System utilizes the following libraries:

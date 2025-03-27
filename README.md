@@ -13,8 +13,13 @@ The provided code will be organized, commented, and user-friendly to allow for t
 Before compiling the programming in this repository, some libraries are necessary for the Arduino IDE. These libraries are not all contained here due to licensing.
 
 The following libraries are required for compiling and uploading to an ESP-32.
-- The Scanner System utilizes the following library: [MFRC522](https://github.com/Animal-Crate/Animal-Crate/tree/master/MFRC522)
-- The Sound System utilizes the following library: [DFRobotDFPlayerMini](https://github.com/DFRobot/DFRobotDFPlayerMini)
+- The Scanner System utilizes the following libraries:
+  - [Adafruit GFX Library](https://github.com/adafruit/Adafruit-GFX-Library)
+  - [Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library) (For Testing)
+  - [MFRC522](https://github.com/Animal-Crate/Animal-Crate/tree/master/MFRC522)
+- The Sound System utilizes the following libraries:
+  - [DFRobotDFPlayerMini](https://github.com/DFRobot/DFRobotDFPlayerMini)
+  - [ESPSoftwareSerial](https://github.com/plerup/espsoftwareserial/)
 
 ## Acknowledgements
 Please note that the files shown in [MFRC522](https://github.com/Animal-Crate/Animal-Crate/tree/master/MFRC522) are taken from another repository. These are not licensed under this repository's license, and you can find more information in the README section in that directory.

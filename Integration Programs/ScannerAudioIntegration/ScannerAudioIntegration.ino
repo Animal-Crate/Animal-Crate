@@ -27,6 +27,15 @@
 #define PLAY_AUDIO        34  // Pin Location for Button Input
 #define PIN_MP3_TX        26  // Connect to Module TX Data
 #define PIN_MP3_RX        27  // Connect to Module RX Data
+// - Animal Definitions
+#define COW               1   // Cow is on the 001.mp3 file.
+#define DOG               2   // Dog is on the 002.mp3 file.
+#define SHEEP             3   // Sheep is on the 003.mp3 file.
+#define HORSE             4   // Horse is on the 004.mp3 file.
+#define CHICKEN           5   // Chicken is on the 005.mp3 file.
+#define PIG               6   // Pig is on the 006.mp3 file.
+
+/* Card Definitions */
 
 /* Class Creations & Associations */
 MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 module

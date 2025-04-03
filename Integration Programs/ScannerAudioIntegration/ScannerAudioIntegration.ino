@@ -35,40 +35,40 @@ DFRobotDFPlayerMini player;                                                     
 
 /* Global Variables */
 volatile bool isPlaying = 0;                                                          // Create a boolean for whether the audio player is playing audio.
+volatile bool upPressed = 0;                                                          // Create a boolean for labeling when the up button has been pressed, to prevent debounce.
+volatile bool downPressed = 0;                                                        // Create a boolean for labeling when the down button has been pressed, to prevent debounce.
 volatile uint8_t volume = 15;                                                         // Volume Control Integer. Initial Volume is 15, volume ranges from 0-30.
 volatile uint8_t currentFile = 1;                                                     // File Selection Integer. Initial file is always 1. Values must be greater than 0.
+const char noTrigger[] = {"Volume is currently: "};                                   // Create a string for outputting to serial when nothing is pressed. [Interrupts Use]
+const char upTrigger[] = {"Volume was Increased to: "};                               // Create a string for outputting to serial when up is pressed. [Interrupts Use]
+const char downTrigger[] = {"Volume was Decreased to: "};                             // Create a string for outputting to serial when down is pressed. [Interrupts Use]
+const char bothTrigger[] = {"Volume was Changed to: "};                               // Create a string for outputting to serial when both are pressed. [Interrupts Use]
 char uid[32];                                                                         // Create a 32 byte array for UID (well over what it needs).
 
 /* Interrupt Service Routines for button presses. */
 /// <summary>
 ///   Increases the volume of the DFPlayer Mini for the Speakers.
+///   **  Does not change if volume up button was previously pressed.
 /// </summary>
 void IRAM_ATTR ISR_volumeUp()
 {
-  if (volume < 30) {
-      volume = volume + 3;  // Maximum volume is 30, check underneath.
-      volume = volume > 30 ? 30 : volume; // Ensures volume is within the dedicated range. Redundancy.
-
-      player.volume(volume);
-      Serial.print("Volume increased to: ");
-      Serial.println(volume);
-      delay(200); // Debounce delay
-    }
+  if (volume < 30 && !upPressed) {
+    volume = volume + 3;  // Maximum volume is 30, check underneath.
+    volume = volume > 30 ? 30 : volume; // Ensures volume is within the dedicated range. Redundancy.
+    upPressed = true;
+  }
 }
 
 /// <summary>
 ///   Decreases the volume of the DFPlayer Mini for the Speakers.
+///   **  Does not change if volume down button was previously pressed.
 /// </summary>
 void IRAM_ATTR ISR_volumeDown()
 {
-  if (volume > 0) {
+  if (volume > 0 && !downPressed) {
       volume = volume - 3;  // Ninimum volume is 0, check underneath.
       volume = volume < 0 ? 0 : volume; // Ensures volume is within the dedicated range. Redundancy.
-
-      player.volume(volume);
-      Serial.print("Volume decreased to: ");
-      Serial.println(volume);
-      delay(200); // Debounce delay
+      downPressed = true;
     }
 }
 
@@ -81,17 +81,17 @@ void setup()
   softwareSerial.begin(9600);                       // Initialization for the DFPlayer Mini module.
 
   /* Line Clears */
-  Serial.println();                                         // Clear the line for beginning of serial output.
-  Serial.println();                                         // Add an additional cleared line for cleanliness.
-  Serial.println(F("<RC522 Successfully Setup>"));          // Display initialization success for RC522 to serial window.
+  Serial.println();                                       // Clear the line for beginning of serial output.
+  Serial.println();                                       // Add an additional cleared line for cleanliness.
+  Serial.println(F("<RC522 Successfully Setup>"));        // Display initialization success for RC522 to serial window.
 
   /* Assign Button Inputs */
-  pinMode(VOLUME_UP, INPUT_PULLUP);             // "Volume Up" button
-  attachInterrupt(digitalPinToInterrupt(VOLUME_UP), ISR_volumeUp, RISING);
-  pinMode(VOLUME_DOWN, INPUT_PULLUP);           // "Volume Down" button
-  attachInterrupt(digitalPinToInterrupt(VOLUME_DOWN), ISR_volumeDown, RISING);
-  pinMode(PLAY_AUDIO, INPUT_PULLUP);            // "Play Sound" button
-  Serial.println(F("<Buttons Configured>"));    // Print that the button is configured.
+  pinMode(VOLUME_UP, INPUT_PULLUP);                       // "Volume Up" button
+  attachInterrupt(VOLUME_UP, ISR_volumeUp, RISING);       // Attach interrupt to Volume Up button.
+  pinMode(VOLUME_DOWN, INPUT_PULLUP);                     // "Volume Down" button
+  attachInterrupt(VOLUME_DOWN, ISR_volumeDown, RISING);   // Attach interrupt to Volume Down button.
+  pinMode(PLAY_AUDIO, INPUT_PULLUP);                      // "Play Sound" button
+  Serial.println(F("<Buttons Configured>"));              // Print that the button is configured.
 
   /* Start Communication with DFPlayer Mini */
   if (player.begin(softwareSerial))
@@ -117,8 +117,21 @@ void setup()
 void loop()
 {
   /* Integration Code */
+  if (upPressed || downPressed)
+  {
+    if (!downPressed) Serial.print(F(upTrigger));
+    else if (!upPressed) Serial.print(F(downTrigger));
+    else Serial.print(F(bothTrigger));
+
+    upPressed = false;
+    downPressed = false;
+    Serial.println(volume);
+  }
+
  // Check if "Play Sound" button is pressed
   if (digitalRead(PLAY_AUDIO) == HIGH && !isPlaying) { // Button pressed (LOW due to pull-up) and not currently playing
+    player.volume(volume);
+
     Serial.println("Playing sound");
     player.play(currentFile);
     isPlaying = true;
@@ -151,6 +164,8 @@ void loop()
   }
 
   convertByte(rfid.uid.uidByte, rfid.uid.size);
+  Serial.print(F("Card UID (String): "));
+  Serial.println(uid);
 
   /* Print Card UID in HEX */
   Serial.print(F("Card UID (Hex):"));

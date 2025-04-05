@@ -111,7 +111,7 @@ volatile bool isPlaying = 0;            // Create a boolean for whether the audi
 volatile uint8_t volume = 21;           // Volume Control Integer. Initial Volume is 15, volume ranges from 0-30.
 volatile uint8_t brightness = 128;      // Brightness Control Integer. Initial brightness is 128, brightness ranges from 32-255.
 volatile uint8_t levelIndex = 3;        // Brightness Array Indexer.
-uint8_t selectedOption = 0;             // Option selector integer.
+volatile uint8_t selectedOption = 0;    // Option selector integer.
 char uid[32];                           // Create a 32 byte array for UID (well over what it needs).
 
 /* Interrupt Service Routines for button presses. */

@@ -3,10 +3,9 @@
 /* AUTHOR:  John Willis, Shunsuke Morosa              */
 /*                                                    */
 /*                                                    */
-/* PURPOSE: To read MiFare Ultralight Cards           */
-/* and display the information on the ST7735          */
-/* LED display from Adafruit. Playing Audio for       */
-/* specific cards.                                    */
+/* PURPOSE: To read NFC Cards and play the            */
+/* animal noises based on card association defined    */
+/* in the program.                                    */
 /* -------------------------------------------------- */
 
 /* Library Includes */

@@ -24,9 +24,31 @@
 // - Audio System
 #define VOLUME_UP         33  // Pin Location for Button Input
 #define VOLUME_DOWN       32  // Pin Location for Button Input
-#define PLAY_AUDIO        34  // Pin Location for Button Input
 #define PIN_MP3_TX        26  // Connect to Module TX Data
 #define PIN_MP3_RX        27  // Connect to Module RX Data
+// - Animal Definitions
+#define ANIMAL_1          1   // Cow is on the 001.mp3 file.
+#define ANIMAL_2          2   // Dog is on the 002.mp3 file.
+#define ANIMAL_3          3   // Sheep is on the 003.mp3 file.
+#define ANIMAL_4          4   // Horse is on the 004.mp3 file.
+#define ANIMAL_5          5   // Chicken is on the 005.mp3 file.
+#define ANIMAL_6          6   // Pig is on the 006.mp3 file.
+
+/* Enumerators */
+enum animal_ID : uint8_t    // File selection integer enumerator. This acts to display the best course of understanding to users unaffiliated with programming.
+{
+  COW = ANIMAL_1,
+  DOG = ANIMAL_2,
+  SHEEP = ANIMAL_3,
+  HORSE = ANIMAL_4,
+  CHICKEN = ANIMAL_5,
+  PIG = ANIMAL_6
+};
+animal_ID currentFile = COW;  // DEFINES THE FILES SELECTION!
+
+/* Card Definitions */
+char card_1[] = {"4330DFE1"};     // THESE ARE TESTING CARDS! THESE ARE NOT THE SAME!
+char card_2[] = {"E31FCE13"};     // THESE ARE TESTING CARDS! THESE ARE NOT THE SAME!
 
 /* Class Creations & Associations */
 MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 module
@@ -37,8 +59,7 @@ DFRobotDFPlayerMini player;                                                     
 volatile bool isPlaying = 0;                                                          // Create a boolean for whether the audio player is playing audio.
 volatile bool upPressed = 0;                                                          // Create a boolean for labeling when the up button has been pressed, to prevent debounce.
 volatile bool downPressed = 0;                                                        // Create a boolean for labeling when the down button has been pressed, to prevent debounce.
-volatile uint8_t volume = 15;                                                         // Volume Control Integer. Initial Volume is 15, volume ranges from 0-30.
-volatile uint8_t currentFile = 1;                                                     // File Selection Integer. Initial file is always 1. Values must be greater than 0.
+volatile uint8_t volume = 21;                                                         // Volume Control Integer. Initial Volume is 15, volume ranges from 0-30.
 const char noTrigger[] = {"Volume is currently: "};                                   // Create a string for outputting to serial when nothing is pressed. [Interrupts Use]
 const char upTrigger[] = {"Volume was Increased to: "};                               // Create a string for outputting to serial when up is pressed. [Interrupts Use]
 const char downTrigger[] = {"Volume was Decreased to: "};                             // Create a string for outputting to serial when down is pressed. [Interrupts Use]
@@ -90,7 +111,6 @@ void setup()
   attachInterrupt(VOLUME_UP, ISR_volumeUp, RISING);       // Attach interrupt to Volume Up button.
   pinMode(VOLUME_DOWN, INPUT_PULLUP);                     // "Volume Down" button
   attachInterrupt(VOLUME_DOWN, ISR_volumeDown, RISING);   // Attach interrupt to Volume Down button.
-  pinMode(PLAY_AUDIO, INPUT_PULLUP);                      // "Play Sound" button
   Serial.println(F("<Buttons Configured>"));              // Print that the button is configured.
 
   /* Start Communication with DFPlayer Mini */
@@ -116,28 +136,7 @@ void setup()
 
 void loop()
 {
-  /* Integration Code */
-  if (upPressed || downPressed)
-  {
-    if (!downPressed) Serial.print(F(upTrigger));
-    else if (!upPressed) Serial.print(F(downTrigger));
-    else Serial.print(F(bothTrigger));
-
-    upPressed = false;
-    downPressed = false;
-    Serial.println(volume);
-  }
-
- // Check if "Play Sound" button is pressed
-  if (digitalRead(PLAY_AUDIO) == HIGH && !isPlaying) { // Button pressed (LOW due to pull-up) and not currently playing
-    player.volume(volume);
-
-    Serial.println("Playing sound");
-    player.play(currentFile);
-    isPlaying = true;
-    delay(200); // Debounce delay
-  }
-
+  checkVolume();
   // Check if the player has finished playing the current file
   if (player.available()) {
     int type = player.readType();
@@ -146,24 +145,24 @@ void loop()
       isPlaying = false;
     }
   }
-  /* End Code Transfer */
 
   /* Test if card is still there. */
   if (!rfid.PICC_IsNewCardPresent())     // Check if the card is present. If this fails, return to start of loop.
   {
-    Serial.println(F("Take card away from sensor and replace. (Delaying 1000 ms)"));
-    delay(1000);
+    Serial.println(F("Take card away from sensor and replace. (Delaying 300 ms)"));
+    delay(300);
     return;
   }
   
   if (!rfid.PICC_ReadCardSerial())       // Verify a successful read. If this fails, return to start of loop.
   {
-    Serial.println(F("Card Read Failure, please try again. (Delaying 1000 ms)"));
-    delay(1000);
+    Serial.println(F("Card Read Failure, please try again. (Delaying 300 ms)"));
+    delay(300);
     return;
   }
 
   convertByte(rfid.uid.uidByte, rfid.uid.size);
+  playAudio();
   Serial.print(F("Card UID (String): "));
   Serial.println(uid);
 
@@ -182,13 +181,53 @@ void loop()
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   Serial.println(rfid.PICC_GetTypeName(piccType));
 
-  /* Create delay to prevent multiple readings. */
-  delay(2000);                // Delay 2 seconds after reading information to prevent reads again.
+  delay(2000); // Delay 2 seconds after reading information to prevent reads again.
+}
+
+/* Functions for playing Audio and setting Enumerators. */
+/// <summary>
+///   Plays the audio based on scanner reading successfully.
+///   **  Prints out "Playing Sound" in Serial Connection.
+/// </summary>
+void playAudio()
+{
+  if (!strcmp(card_1, uid)) currentFile = COW;
+  else if (!strcmp(card_2, uid)) currentFile = DOG;
+  else currentFile = PIG;
+
+  if (!isPlaying) // Only works if the audio player is not currently playing an audio, to prevent errors.
+  {
+    player.volume(volume);
+
+    Serial.println("Playing sound");
+    player.play(currentFile);
+    isPlaying = true;
+    delay(200); // Debounce delay
+  }
+}
+
+/// <summary>
+///   Checks the volume condition and resets booleans for the button presses.
+///   **  Prints out volume in Serial connection.
+/// </summary>
+void checkVolume()
+{
+  if (upPressed || downPressed)
+  {
+    if (!downPressed) Serial.print(F(upTrigger));
+    else if (!upPressed) Serial.print(F(downTrigger));
+    else Serial.print(F(bothTrigger));
+
+    upPressed = false;
+    downPressed = false;
+    Serial.println(volume);
+  }
 }
 
 /* Functions for dumping information from byte arrays, specifically for RC522 module. */
 /// <summary>
 ///   Converts a byte array to characters for use in other functions.
+///   **  Modifies global variable for "uid".
 /// </summary>
 void convertByte(byte *buffer, byte bufferSize)
 {
@@ -199,6 +238,7 @@ void convertByte(byte *buffer, byte bufferSize)
 /// <summary>
 ///   Print to Serial window the bytes from a buffer with spaces for each byte in
 ///   HEXadecimal format.
+///   **  Prints out data into Serial Connection.
 /// </summary>
 void printHex(byte *buffer, byte bufferSize)            // Print information in Hex.
 {
@@ -213,6 +253,7 @@ void printHex(byte *buffer, byte bufferSize)            // Print information in 
 /// <summary>
 ///   Print to Serial window the bytes from a buffer with spaces for each byte in
 ///   DECimal format.
+///   **  Prints out data into Serial Connection.
 /// </summary>
 void printDec(byte *buffer, byte bufferSize)            // Print information in Dec.
 {

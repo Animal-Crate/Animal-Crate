@@ -1,0 +1,3 @@
+The files in this directory, specifically the `ModularPowerSupply.*` files, are component files for the Power Supply PCB created in the [KiCad](https://www.kicad.org/) Software.
+
+The `ModularPowerSupply.*` files pertain to the PCB design, the `PCB_MillingPlan.btm` file is the milling plan for the PCB, and the `DIP-18_500.kicad_mod` and `EYESPI_18PIN.kicad_sym` are drivers for separate systems included in the display/algorith module.

@@ -25,6 +25,8 @@
 #define VOLUME_DOWN       32  // Pin Location for Button Input
 #define PIN_MP3_TX        26  // Connect to Module TX Data
 #define PIN_MP3_RX        27  // Connect to Module RX Data
+
+/* Definitions for Constant Values */
 // - Animal Definitions
 #define ANIMAL_1          1   // Cow is on the 001.mp3 file.
 #define ANIMAL_2          2   // Dog is on the 002.mp3 file.

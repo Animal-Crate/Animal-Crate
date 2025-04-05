@@ -51,9 +51,14 @@
 #define ANIMAL_5          5     // Chicken is on the 005.mp3 file.
 #define ANIMAL_6          6     // Pig is on the 006.mp3 file.
 // - Display Definitions
-#define FREQUENCY         5000  // PWM Frequency
+#define FREQ              5000  // PWM Frequency
 #define CHANNEL           1     // PWM Channel
 #define RESOLUTION        8     // PWM Channel Resolution
+#define TOTALOPTIONS      2     // Total Options to Choose
+
+/* Card Definitions */
+char card_1[] = {"4330DFE1"};     // THESE ARE TESTING CARDS! THESE ARE NOT THE SAME!
+char card_2[] = {"E31FCE13"};     // THESE ARE TESTING CARDS! THESE ARE NOT THE SAME!
 
 /* Enumerators */
 enum animal_ID : uint8_t    // File selection integer enumerator. This acts to display the best course of understanding to users unaffiliated with programming.
@@ -65,16 +70,25 @@ enum animal_ID : uint8_t    // File selection integer enumerator. This acts to d
   CHICKEN = ANIMAL_5,
   PIG = ANIMAL_6
 };
+
+enum mode : uint8_t         // Mode selection integer enumerator. This selects the current mode that algorithm is in and whether to display the menu.
+{
+  MENU,
+  LEARNING,
+  GAME
+}
+
+/* Class/Enumerator Creations & Associations */
+// - Classes
+MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                // Creating class for RC522 module
+SoftwareSerial softwareSerial(PIN_MP3_RX, PIN_MP3_TX);    // Creating class for Serial Connection for RX/TX Pins
+DFRobotDFPlayerMini player;                               // Creating class for DFPlayer Mini module
+Adafruit_ImageReader reader(SD);                          // Creating class for ImageReader module
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);  // Creating class for Display module
+SdFat SD;                                                 // Creating class for SD Card module
+// - Enumerators
 animal_ID currentFile = COW;  // DEFINES THE FILES SELECTION!
-
-/* Card Definitions */
-char card_1[] = {"4330DFE1"};     // THESE ARE TESTING CARDS! THESE ARE NOT THE SAME!
-char card_2[] = {"E31FCE13"};     // THESE ARE TESTING CARDS! THESE ARE NOT THE SAME!
-
-/* Class Creations & Associations */
-MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 module
-SoftwareSerial softwareSerial(PIN_MP3_RX, PIN_MP3_TX);                                // Creating class for Serial Connection for RX/TX Pins
-DFRobotDFPlayerMini player;                                                           // Creating class for DFPlayer Mini module
+mode currentMode = MENU;      // DEFINES THE GAMEMODE
 
 /* Global Variables */
 // - Button Booleans    :   Creates booleans for labeling when buttons are pressed to prevent debounce.
@@ -97,6 +111,7 @@ volatile bool isPlaying = 0;            // Create a boolean for whether the audi
 volatile uint8_t volume = 21;           // Volume Control Integer. Initial Volume is 15, volume ranges from 0-30.
 volatile uint8_t brightness = 128;      // Brightness Control Integer. Initial brightness is 128, brightness ranges from 32-255.
 volatile uint8_t levelIndex = 3;        // Brightness Array Indexer.
+uint8_t selectedOption = 0;             // Option selector integer.
 char uid[32];                           // Create a 32 byte array for UID (well over what it needs).
 
 /* Interrupt Service Routines for button presses. */
@@ -107,7 +122,7 @@ char uid[32];                           // Create a 32 byte array for UID (well 
 void IRAM_ATTR ISR_volumeUp()
 {
   if (volume < 30 && !upPressed) {
-    volume = volume + 3;  // Maximum volume is 30, check underneath.
+    volume = volume + 3;                // Maximum volume is 30, check underneath.
     volume = volume > 30 ? 30 : volume; // Ensures volume is within the dedicated range. Redundancy.
     upPressed = true;
   }
@@ -120,19 +135,56 @@ void IRAM_ATTR ISR_volumeUp()
 void IRAM_ATTR ISR_volumeDown()
 {
   if (volume > 0 && !downPressed) {
-      volume = volume - 3;  // Ninimum volume is 0, check underneath.
+      volume = volume - 3;              // Ninimum volume is 0, check underneath.
       volume = volume < 0 ? 0 : volume; // Ensures volume is within the dedicated range. Redundancy.
       downPressed = true;
     }
 }
 
+/// <summary>
+///   These two functions, ISR_BACK and ISR_NEXT, are simple checkstatements.
+///   **  These do not execute if button was previously pressed.
+///   **  These are condensed.
+/// </summary>
+void IRAM_ATTR ISR_BACK() { if (!backPressed) backPressed = true; }
+void IRAM_ATTR ISR_NEXT() { if (!nextPressed) nextPressed = true; }
+
+/// <summary>
+///   Changes the selected option for the menu screen.
+///   **  Does not change if the navigate button was previously pressed.
+/// </summary>
+void IRAM_ATTR ISR_NAVIGATE() 
+{
+  if (!navigatePressed)
+  {
+    selectedOption = (selectedOption + 1) & TOTALOPTIONS;
+    navigatePressed = true;
+  }
+}
+
+/// <summary>
+///   Changes the brightness of the backlight on the LED Display.
+///   **  Does not change if the brightness button was previously pressed.
+/// </summary>
+void IRAM_ATTR ISR_BRIGHTNESS()
+{
+  if (!brightnessPressed)
+  {
+    levelIndex = (levelIndex + 1) % RESOLUTION;
+    brightness = brightnessLevels[levelIndex];
+    brightnessPressed = true;
+  }
+}
+
 void setup()
 {
   /* Initializations */
-  Serial.begin(9600);                               // Initialize the serial communication with the computer.
-  SPI.begin();                                      // Initialization for the SPI bus for slave devices.
-  rfid.PCD_Init();                                  // Initialization for the RC522 module.
-  softwareSerial.begin(9600);                       // Initialization for the DFPlayer Mini module.
+  Serial.begin(9600);           // Initialize the serial communication with the computer.
+  SPI.begin();                  // Initialization for the SPI bus for slave devices.
+  rfid.PCD_Init();              // Initialization for the RC522 module.
+  softwareSerial.begin(9600);   // Initialization for the DFPlayer Mini module.
+  tft.begin();                  // Initialization for display module.
+  tft.setRotation(1);           // Set display module to landscape mode.
 
   /* Line Clears */
   Serial.println();                                       // Clear the line for beginning of serial output.
@@ -140,10 +192,21 @@ void setup()
   Serial.println(F("<RC522 Successfully Setup>"));        // Display initialization success for RC522 to serial window.
 
   /* Assign Button Inputs */
-  pinMode(VOLUME_UP, INPUT_PULLUP);                       // "Volume Up" button
+  // - Button Inputs
+  pinMode(VOLUME_UP, INPUT_PULLUP);     // "Volume Up" button
+  pinMode(VOLUME_DOWN, INPUT_PULLUP);   // "Volume Down" button
+  pinMode(BACK, INPUT_PULLUP);          // "Back" button
+  pinMode(NEXT, INPUT_PULLUP);          // "Next" button
+  pinMode(NAVIGATE, INPUT_PULLUP);      // "Navigate" button
+  pinMode(BRIGHTNESS, INPUT_PULLUP);    // "Brightness" button
+  // - Button Interrupts
   attachInterrupt(VOLUME_UP, ISR_volumeUp, RISING);       // Attach interrupt to Volume Up button.
-  pinMode(VOLUME_DOWN, INPUT_PULLUP);                     // "Volume Down" button
   attachInterrupt(VOLUME_DOWN, ISR_volumeDown, RISING);   // Attach interrupt to Volume Down button.
+  attachInterrupt(BACK, ISR_BACK, FALLING);               // Attach interrupt to Back button.
+  attachInterrupt(NEXT, ISR_NEXT, FALLING);               // Attach interrupt to Next button.
+  attachInterrupt(NAVIGATE, ISR_NAVIGATE, FALLING);       // Attach interrupt to Navigate button.
+  attachInterrupt(BRIGHTNESS, ISR_BRIGHTNESS, FALLING);   // Attach interrupt to Brightness button.
+  // - Confirmation
   Serial.println(F("<Buttons Configured>"));              // Print that the button is configured.
 
   /* Start Communication with DFPlayer Mini */
@@ -157,6 +220,20 @@ void setup()
   else
     Serial.println("<DFPlayer Mini Failed Setup>");
 
+  /* Start Communication with SD Card */
+  if (!SD.begin(SD_CS, SD_SCK_MHZ(10))) // Initialization for SD Card.
+  {
+    Serial.println(F("<SD Initialization Failed!>"));
+    for (;;);
+  }
+  else
+    Serial.println(F("<SD Card Successfully Setup>"));      // Display initialization success for SD Card to serial window.
+
+  /* Start Display Setup */
+  ledcAttachChannel(BCK_LIGHT, FREQ, RESOLUTION, CHANNEL);  // Setup backlight.
+  ledcWrite(BCK_LIGHT, brightness);                         // Set initial brightness to 50%.
+  Serial.println(F("<LED Screen Successfully Setup>"));     // Initialization for display.
+
   /* Confirmations for data, display in terminal. */
   Serial.println(F("<Program Successfully Setup>"));                                  // State success of program setting up.
   Serial.println(F("This program is intended to scan Mifare Ultralight Cards."));     // Specify acceptable card types in serial window.
@@ -165,6 +242,10 @@ void setup()
 
   for (uint8_t i = 0; i < 10; i++)  // Set default values to 0.
     uid[i] = 0;
+  
+  /* Initialize Program */
+  randomSeed(analogRead(34)); // set it to un used pin
+  drawMenu();
 }
 
 void loop()

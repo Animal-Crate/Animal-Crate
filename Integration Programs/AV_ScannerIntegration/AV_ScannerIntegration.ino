@@ -1,5 +1,5 @@
 /* -------------------------------------------------- */
-/* NAME:    CARD-READ & AUDIO TEST                    */
+/* NAME:    CARD-READ, FEEDBACK AV                    */
 /* AUTHOR:  John Willis, Shunsuke Morosa,             */
 /*            Yoseph Tefera                           */
 /*                                                    */
@@ -11,7 +11,6 @@
 /* -------------------------------------------------- */
 
 /* Library Includes */
-// - Standard Libraries
 #include <stdint.h>                 // Library for data types.
 #include <SPI.h>                    // Arduino library for SPI controls.
 #include <MFRC522.h>                // Library for RC522 scanning module.
@@ -76,16 +75,16 @@ enum mode : uint8_t         // Mode selection integer enumerator. This selects t
   MENU,
   LEARNING,
   GAME
-}
+};
 
 /* Class/Enumerator Creations & Associations */
 // - Classes
 MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                // Creating class for RC522 module
 SoftwareSerial softwareSerial(PIN_MP3_RX, PIN_MP3_TX);    // Creating class for Serial Connection for RX/TX Pins
 DFRobotDFPlayerMini player;                               // Creating class for DFPlayer Mini module
+SdFat SD;                                                 // Creating class for SD Card module
 Adafruit_ImageReader reader(SD);                          // Creating class for ImageReader module
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);  // Creating class for Display module
-SdFat SD;                                                 // Creating class for SD Card module
 // - Enumerators
 animal_ID currentFile = COW;  // DEFINES THE FILES SELECTION!
 mode currentMode = MENU;      // DEFINES THE GAMEMODE
@@ -250,65 +249,276 @@ void setup()
 
 void loop()
 {
-  checkVolume();
-  // Check if the player has finished playing the current file
-  if (player.available()) {
-    int type = player.readType();
-    if (type == DFPlayerPlayFinished) {
+  if (currentMode == MENU || currentMode == GAME)
+  {
+    if (backPressed) { backPressed = false; drawMenu(); }
+    if (nextPressed) { nextPressed = false; selectOption(); }
+    if (navigatePressed) { navigatePressed = false; moveSelector(); }
+    if (brightnessPressed) { brightnessPressed = false; brightnessControl(); }
+
+    checkVolume();
+    checkAudio();
+  }
+  else if (currentMode == LEARNING) { learningMode(); }
+}
+
+/* ------------------------------------------------------------ */
+/* Functions for Display Control and Algorithm/Gamemode Control */
+/* ------------------------------------------------------------ */
+
+/// <summary>
+///   Draws the entire screen, filling with appropriate text for options.
+///   **  This is a display function, and interacts with only the display.
+/// </summary>
+void drawMenu()
+{
+  currentMode = MENU;
+  tft.fillScreen(ILI9341_BLACK);
+  tft.setCursor(50, 0);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(4);
+  tft.println("Main Menu");
+  // Draw Option 1
+  tft.setCursor(20, 50);
+  tft.setTextColor(selectedOption == 0 ? ILI9341_YELLOW : ILI9341_WHITE);
+  tft.setTextSize(3);
+  tft.println("> Learning Mode");
+  // Draw Option 2
+  tft.setCursor(20, 90);
+  tft.setTextColor(selectedOption == 1 ? ILI9341_YELLOW : ILI9341_WHITE);
+  tft.setTextSize(3);
+  tft.println("> Game Mode");
+  // Instructions at the bottom
+  tft.setTextSize(2);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setCursor(10, 140);
+  tft.println("Press Navigate to move");
+  tft.setCursor(10, 180);
+  tft.println("Press Next to select");
+  tft.setCursor(10, 220);
+  tft.println("Press Back to return");
+}
+
+/// <summary>
+///   Update Functions for Display and Menu.
+///   Controls Brightness and Calls other Update Functions.
+///   **  These functions update display.
+/// </summary>
+void moveSelector() { drawMenu(); }
+void brightnessControl() { ledcWrite(BCK_LIGHT, brightness); }
+
+/// <summary>
+///   Updates the current mode option and calls the function
+///   based on the selected option.
+///   **  This function sets the algorithm selection.
+/// </summary>
+void selectOption()
+{
+  tft.fillScreen(ILI9341_BLACK);
+  
+  if (selectedOption == 0)
+  {
+    currentMode = LEARNING;
+    learningMode();
+  } 
+  else
+  {
+    currentMode = GAME;
+    gameMode();
+  }
+}
+
+/// <summary>
+///   This function runs the Learning Mode for active feedback on pieces.
+///   ** This is an algorithm implemented in a separate loop from main.
+/// </summary>
+void learningMode()
+{
+  currentMode = LEARNING;
+  backPressed = false;  
+
+  while (!backPressed)
+  {
+    if (brightnessPressed)
+    {
+      brightnessControl();
+      brightnessPressed = false;
+    }
+    checkVolume();
+    checkAudio();
+      
+    tft.fillScreen(ILI9341_BLACK);
+    tft.setCursor(0, 0);
+    tft.setTextSize(2);
+    tft.setTextColor(ILI9341_WHITE);
+    tft.println("Learning Mode");
+    tft.setCursor(0, 20);
+    tft.println("Place animal");
+
+    checkCardScan();
+
+    tft.setCursor(50, 40);
+    tft.setTextSize(2);
+    tft.setTextColor(ILI9341_WHITE);
+    tft.println(animalNames[currentFile]);
+    reader.drawBMP(imageFiles[currentFile], tft, 10, 60);
+    
+    playAudio();
+    
+    Serial.println(animalNames[currentFile]);
+
+    delay(3000);
+  }
+  drawMenu();
+}
+
+/// <summary>
+///   This runs the Game Mode for testing pieces and playing audio/pictures prior to scan.
+///   **  This is an algorithm implemented separate from the main loop.
+/// </summary>
+void gameMode()
+{
+  uint8_t score = 0;
+  uint8_t availableAnimals[6] = {0, 1, 2, 3, 4, 5};  // List of available animals
+  uint8_t remaining = 6;  // Total animals left in the game
+
+  backPressed = false;  // Reset back button flag before game starts
+
+  while (remaining > 0)
+  {
+    uint8_t randIndex = random(remaining);
+    uint8_t targetAnimal = availableAnimals[randIndex];  // Select a random animal
+
+    tft.fillScreen(ILI9341_BLACK);
+    tft.setCursor(0, 0);
+    tft.setTextSize(2);
+    tft.setTextColor(ILI9341_WHITE);
+    tft.println("Game Mode");
+
+    switch(randIndex)
+    {
+      case 0: currentFile = COW; break;
+      case 1: currentFile = DOG; break;
+      case 2: currentFile = SHEEP; break;
+      case 3: currentFile = HORSE; break;
+      case 4: currentFile = CHICKEN; break;
+      case 5: currentFile = PIG; break;
+      default: currentFile = COW; break;
+    }
+    playAudio();
+    
+    delay(1000);
+
+    tft.setCursor(0, 20);
+    tft.println("Place the correct animal");
+
+    while (true)
+    {
+      if (backPressed)
+      {
+        backPressed = false;  // Reset flag
+        drawMenu();  
+        return;
+      }
+      checkVolume();
+      checkAudio();
+      checkCardScan();
+
+      if (currentFile == targetAnimal)
+      {
+        // **Correct answer: update score and remove used animal**
+        score++;
+        availableAnimals[randIndex] = availableAnimals[remaining - 1];  // Replace with last element
+        remaining--;  // Reduce available options
+
+        //tft.fillScreen(ILI9341_BLACK);
+        tft.setCursor(40, 40);
+        tft.setTextSize(2);
+        tft.setTextColor(ILI9341_GREEN);
+        tft.println("Correct!");
+        tft.setCursor(160, 40);
+        tft.println(animalNames[currentFile]);
+        reader.drawBMP(imageFiles[currentFile], tft, 10, 60);
+        // play sound here
+        delay(1000);
+        break;  // Move to next round
+      }
+      else
+      {
+        // **Incorrect answer: Show "Try Again" message**
+        //tft.fillScreen(ILI9341_BLACK);
+        tft.setCursor(40, 40);
+        tft.setTextSize(2);
+        tft.setTextColor(ILI9341_RED);
+        tft.println("Try Again");
+        delay(1000);
+        
+        // **Re-display the prompt**
+        tft.fillScreen(ILI9341_BLACK);
+        tft.setCursor(0, 0);
+        tft.setTextSize(2);
+        tft.setTextColor(ILI9341_WHITE);
+        tft.println("Game Mode");
+        tft.setCursor(0, 20);
+        tft.println("Place the correct animal");
+      }
+
+      delay(500);  // Prevent rapid detection spam
+    }
+  }
+
+  // **Game Over: Display final score and return to menu**
+  tft.fillScreen(ILI9341_BLACK);
+  tft.setCursor(0, 0);
+  tft.setTextSize(2);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.println("Game Over");
+  tft.setCursor(0, 20);
+  tft.print("Score: ");
+  tft.println(score);
+  delay(3000);
+  drawMenu();
+}
+
+/* ---------------------------------------------------- */
+/* Functions for playing Audio and setting Enumerators. */
+/* ---------------------------------------------------- */
+
+/// <summary>
+///   Sets the enumerator based on card data. This is called after reading a card.
+///   **  This sets enumerator and requires other functions.
+/// </summary>
+void checkAnimal()
+{
+  if (!strcmp(card_1, uid)) currentFile = COW;
+  else if (!strcmp(card_2, uid)) currentFile = DOG;
+  else currentFile = PIG;
+}
+
+/// <summary>
+///   Check the audio player availability and prints track success.
+///   **  Prints out "Track Finished" in Serial Connection. 
+/// </summary>
+void checkAudio()
+{
+  if (player.available())
+  {
+    uint8_t type = player.readType();
+
+    if (type == DFPlayerPlayFinished)
+    {
       Serial.println("Track finished!");
       isPlaying = false;
     }
   }
-
-  /* Test if card is still there. */
-  if (!rfid.PICC_IsNewCardPresent())     // Check if the card is present. If this fails, return to start of loop.
-  {
-    Serial.println(F("Take card away from sensor and replace. (Delaying 300 ms)"));
-    delay(300);
-    return;
-  }
-  
-  if (!rfid.PICC_ReadCardSerial())       // Verify a successful read. If this fails, return to start of loop.
-  {
-    Serial.println(F("Card Read Failure, please try again. (Delaying 300 ms)"));
-    delay(300);
-    return;
-  }
-
-  convertByte(rfid.uid.uidByte, rfid.uid.size);
-  playAudio();
-  Serial.print(F("Card UID (String): "));
-  Serial.println(uid);
-
-  /* Print Card UID in HEX */
-  Serial.print(F("Card UID (Hex):"));
-  printHex(rfid.uid.uidByte, rfid.uid.size);  // Print in HEX
-  Serial.println();
-
-  /* Print Card UID in DEC */
-  Serial.print(F("Card UID (Dec):"));
-  printDec(rfid.uid.uidByte, rfid.uid.size);  // Print in DEC
-  Serial.println();
-
-  /* Read Card PICC Type and print and display. */
-  Serial.print(F("PICC Type: "));
-  MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
-  Serial.println(rfid.PICC_GetTypeName(piccType));
-
-  delay(2000); // Delay 2 seconds after reading information to prevent reads again.
 }
 
-/* Functions for playing Audio and setting Enumerators. */
 /// <summary>
 ///   Plays the audio based on scanner reading successfully.
 ///   **  Prints out "Playing Sound" in Serial Connection.
 /// </summary>
 void playAudio()
 {
-  if (!strcmp(card_1, uid)) currentFile = COW;
-  else if (!strcmp(card_2, uid)) currentFile = DOG;
-  else currentFile = PIG;
-
   if (!isPlaying) // Only works if the audio player is not currently playing an audio, to prevent errors.
   {
     player.volume(volume);
@@ -338,7 +548,73 @@ void checkVolume()
   }
 }
 
+/* ---------------------------------------------------------------------------------- */
 /* Functions for dumping information from byte arrays, specifically for RC522 module. */
+/* ---------------------------------------------------------------------------------- */
+
+/// <summary>
+///   Checks if a card is there, splitting into a loop from main loop until card is read.
+///   **  This splits from loop until it reads from scanner.
+/// </summary>
+void checkCardScan()
+{
+  bool isValid = false; // Checks if the card is valid.
+  bool isNew = false;   // Checks if the card is new.
+
+  while (!isValid || !isNew)
+  {
+    if (rfid.PICC_IsNewCardPresent())     // Check if the card is present. If this fails, return to start of loop.
+      isNew = true;
+    else
+      Serial.println(F("Take card away from sensor and replace."));
+    
+    if (rfid.PICC_ReadCardSerial())       // Verify a successful read. If this fails, return to start of loop.
+      isValid = true;
+    else
+      Serial.println(F("Card Read Failure, please try again."));
+
+    if (isValid && isNew)
+      break;
+    else
+    {
+      isValid = false;
+      isNew = false;
+    }
+
+    delay(300); // Delay 300 milliseconds to prevent repeat scans of same card.
+  }
+
+  updateUID();  // Update the UID after a successful scan, no matter what.
+}
+
+/// <summary>
+///   Converts information, updates UID, and prints card information to Serial.
+///   **  This prints information to Serial Connection.
+/// </summary>
+void updateUID()
+{
+  convertByte(rfid.uid.uidByte, rfid.uid.size);
+  Serial.print(F("Card UID (String): "));
+  Serial.println(uid);
+
+  /* Print Card UID in HEX */
+  Serial.print(F("Card UID (Hex):"));
+  printHex(rfid.uid.uidByte, rfid.uid.size);  // Print in HEX
+  Serial.println();
+
+  /* Print Card UID in DEC */
+  Serial.print(F("Card UID (Dec):"));
+  printDec(rfid.uid.uidByte, rfid.uid.size);  // Print in DEC
+  Serial.println();
+
+  /* Read Card PICC Type and print and display. */
+  Serial.print(F("PICC Type: "));
+  MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+  Serial.println(rfid.PICC_GetTypeName(piccType));
+
+  checkAnimal();
+}
+
 /// <summary>
 ///   Converts a byte array to characters for use in other functions.
 ///   **  Modifies global variable for "uid".

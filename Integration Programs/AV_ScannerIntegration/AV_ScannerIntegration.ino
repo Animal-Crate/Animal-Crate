@@ -120,7 +120,8 @@ char uid[32];                           // Create a 32 byte array for UID (well 
 /// </summary>
 void IRAM_ATTR ISR_volumeUp()
 {
-  if (volume < 30 && !upPressed) {
+  if (volume < 30 && !upPressed)
+  {
     volume = volume + 3;                // Maximum volume is 30, check underneath.
     volume = volume > 30 ? 30 : volume; // Ensures volume is within the dedicated range. Redundancy.
     upPressed = true;
@@ -133,11 +134,12 @@ void IRAM_ATTR ISR_volumeUp()
 /// </summary>
 void IRAM_ATTR ISR_volumeDown()
 {
-  if (volume > 0 && !downPressed) {
-      volume = volume - 3;              // Ninimum volume is 0, check underneath.
-      volume = volume < 0 ? 0 : volume; // Ensures volume is within the dedicated range. Redundancy.
-      downPressed = true;
-    }
+  if (volume > 0 && !downPressed)
+  {
+    volume = volume - 3;              // Ninimum volume is 0, check underneath.
+    volume = volume < 0 ? 0 : volume; // Ensures volume is within the dedicated range. Redundancy.
+    downPressed = true;
+  }
 }
 
 /// <summary>

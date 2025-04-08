@@ -3,10 +3,9 @@
 /* AUTHOR:  John Willis, Shunsuke Morosa              */
 /*                                                    */
 /*                                                    */
-/* PURPOSE: To read MiFare Ultralight Cards           */
-/* and display the information on the ST7735          */
-/* LED display from Adafruit. Playing Audio for       */
-/* specific cards.                                    */
+/* PURPOSE: To read NFC Cards and play the            */
+/* animal noises based on card association defined    */
+/* in the program.                                    */
 /* -------------------------------------------------- */
 
 /* Library Includes */
@@ -26,6 +25,8 @@
 #define VOLUME_DOWN       32  // Pin Location for Button Input
 #define PIN_MP3_TX        26  // Connect to Module TX Data
 #define PIN_MP3_RX        27  // Connect to Module RX Data
+
+/* Definitions for Constant Values */
 // - Animal Definitions
 #define ANIMAL_1          1   // Cow is on the 001.mp3 file.
 #define ANIMAL_2          2   // Dog is on the 002.mp3 file.
@@ -73,7 +74,8 @@ char uid[32];                                                                   
 /// </summary>
 void IRAM_ATTR ISR_volumeUp()
 {
-  if (volume < 30 && !upPressed) {
+  if (volume < 30 && !upPressed)
+  {
     volume = volume + 3;  // Maximum volume is 30, check underneath.
     volume = volume > 30 ? 30 : volume; // Ensures volume is within the dedicated range. Redundancy.
     upPressed = true;
@@ -86,11 +88,12 @@ void IRAM_ATTR ISR_volumeUp()
 /// </summary>
 void IRAM_ATTR ISR_volumeDown()
 {
-  if (volume > 0 && !downPressed) {
-      volume = volume - 3;  // Ninimum volume is 0, check underneath.
-      volume = volume < 0 ? 0 : volume; // Ensures volume is within the dedicated range. Redundancy.
-      downPressed = true;
-    }
+  if (volume > 0 && !downPressed)
+  {
+    volume = volume - 3;  // Ninimum volume is 0, check underneath.
+    volume = volume < 0 ? 0 : volume; // Ensures volume is within the dedicated range. Redundancy.
+    downPressed = true;
+  }
 }
 
 void setup()
@@ -138,9 +141,12 @@ void loop()
 {
   checkVolume();
   // Check if the player has finished playing the current file
-  if (player.available()) {
-    int type = player.readType();
-    if (type == DFPlayerPlayFinished) {
+  if (player.available())
+  {
+    uint8_t type = player.readType();
+
+    if (type == DFPlayerPlayFinished)
+    {
       Serial.println("Track finished!");
       isPlaying = false;
     }

@@ -24,21 +24,21 @@
 
 /* Definitions for Pins */
 // - Scanner System
-#define RC522_SS_PIN      5   // SS/SDA Pin Location for RC522
+#define RC522_SS_PIN      21  // SS/SDA Pin Location for RC522
 #define RC522_RST_PIN     0   // RST Pin Location for RC522
 // - Audio System
-#define VOLUME_UP         33  // Pin Location for Button Input - Volume Up
+#define VOLUME_UP         16  // Pin Location for Button Input - Volume Up
 #define VOLUME_DOWN       32  // Pin Location for Button Input - Volume Down
-#define PIN_MP3_TX        26  // Connect to Module TX Data
-#define PIN_MP3_RX        27  // Connect to Module RX Data
+#define PIN_MP3_TX        26  // Connect to Module TX Data - CONNECTS TO RX ON DFPLAYER MINI
+#define PIN_MP3_RX        27  // Connect to Module RX Data - CONNECTS TO TX ON DFPLAYER MINI
 // - Display System
 #define TFT_DC            2   // Display DC Connection
 #define TFT_CS            15  // Display Chip Select Pin Connection
 #define SD_CS             5   // SD Chip Select Pin Connection
 #define BCK_LIGHT         13  // Display Back Light Connection
 #define BACK              22  // Pin Location for Button Input - Back
-#define NEXT              27  // Pin Location for Button Input - Next
-#define NAVIGATE          17  // Pin Location for Button Input - Navigate
+#define NEXT              14  // Pin Location for Button Input - Next
+#define NAVIGATE          12  // Pin Location for Button Input - Navigate
 #define BRIGHTNESS        33  // Pin Location for Button Input - Brightness  
 
 /* Definitions for Constant Values */
@@ -107,6 +107,7 @@ const char* animalNames[] = {"Cow", "Dog", "Sheep", "Horse", "Chicken", "Pig"}; 
 const char* imageFiles[] = {"3cow3.bmp", "3dog2.bmp", "3sheep1.bmp", "3horse1.bmp", "3chicken4.bmp", "3pig3.bmp"};  // Create an array of strings for file names for images pertaining to animals.
 // - Starting Values & Globals
 volatile bool isPlaying = 0;            // Create a boolean for whether the audio player is playing audio.
+volatile bool scanBacked = 0;           // Create a boolean for whether the scan has been backed or not.
 volatile uint8_t volume = 21;           // Volume Control Integer. Initial Volume is 15, volume ranges from 0-30.
 volatile uint8_t brightness = 128;      // Brightness Control Integer. Initial brightness is 128, brightness ranges from 32-255.
 volatile uint8_t levelIndex = 3;        // Brightness Array Indexer.
@@ -158,7 +159,7 @@ void IRAM_ATTR ISR_NAVIGATE()
 {
   if (!navigatePressed)
   {
-    selectedOption = (selectedOption + 1) & TOTALOPTIONS;
+    selectedOption = (selectedOption + 1) % TOTALOPTIONS;
     navigatePressed = true;
   }
 }
@@ -201,8 +202,8 @@ void setup()
   pinMode(NAVIGATE, INPUT_PULLUP);      // "Navigate" button
   pinMode(BRIGHTNESS, INPUT_PULLUP);    // "Brightness" button
   // - Button Interrupts
-  attachInterrupt(VOLUME_UP, ISR_volumeUp, RISING);       // Attach interrupt to Volume Up button.
-  attachInterrupt(VOLUME_DOWN, ISR_volumeDown, RISING);   // Attach interrupt to Volume Down button.
+  attachInterrupt(VOLUME_UP, ISR_volumeUp, FALLING);       // Attach interrupt to Volume Up button.
+  attachInterrupt(VOLUME_DOWN, ISR_volumeDown, FALLING);   // Attach interrupt to Volume Down button.
   attachInterrupt(BACK, ISR_BACK, FALLING);               // Attach interrupt to Back button.
   attachInterrupt(NEXT, ISR_NEXT, FALLING);               // Attach interrupt to Next button.
   attachInterrupt(NAVIGATE, ISR_NAVIGATE, FALLING);       // Attach interrupt to Navigate button.
@@ -232,7 +233,7 @@ void setup()
 
   /* Start Display Setup */
   ledcAttachChannel(BCK_LIGHT, FREQ, RESOLUTION, CHANNEL);  // Setup backlight.
-  ledcWrite(BCK_LIGHT, brightness);                         // Set initial brightness to 50%.
+  ledcWrite(BCK_LIGHT, brightness);                           // Set initial brightness to 50%.
   Serial.println(F("<LED Screen Successfully Setup>"));     // Initialization for display.
 
   /* Confirmations for data, display in terminal. */
@@ -262,6 +263,8 @@ void loop()
     checkAudio();
   }
   else if (currentMode == LEARNING) { learningMode(); }
+
+  delay(500);
 }
 
 /* ------------------------------------------------------------ */
@@ -341,11 +344,9 @@ void learningMode()
 
   while (!backPressed)
   {
-    if (brightnessPressed)
-    {
-      brightnessControl();
-      brightnessPressed = false;
-    }
+    if (backPressed) { backPressed = false; drawMenu(); return;}
+    if (brightnessPressed) { brightnessPressed = false; brightnessControl(); }
+
     checkVolume();
     checkAudio();
       
@@ -358,16 +359,21 @@ void learningMode()
     tft.println("Place animal");
 
     checkCardScan();
+    if (scanBacked)
+    {
+      scanBacked = false;
+      return;
+    }
 
     tft.setCursor(50, 40);
     tft.setTextSize(2);
     tft.setTextColor(ILI9341_WHITE);
-    tft.println(animalNames[currentFile]);
-    reader.drawBMP(imageFiles[currentFile], tft, 10, 60);
+    tft.println(animalNames[currentFile - 1]);
+    reader.drawBMP(imageFiles[currentFile - 1], tft, 10, 60);
     
     playAudio();
     
-    Serial.println(animalNames[currentFile]);
+    Serial.println(animalNames[currentFile - 1]);
 
     delay(3000);
   }
@@ -416,12 +422,9 @@ void gameMode()
 
     while (true)
     {
-      if (backPressed)
-      {
-        backPressed = false;  // Reset flag
-        drawMenu();  
-        return;
-      }
+      if (backPressed) { backPressed = false; drawMenu(); return;}
+      if (brightnessPressed) { brightnessPressed = false; brightnessControl(); }
+
       checkVolume();
       checkAudio();
       checkCardScan();
@@ -439,8 +442,8 @@ void gameMode()
         tft.setTextColor(ILI9341_GREEN);
         tft.println("Correct!");
         tft.setCursor(160, 40);
-        tft.println(animalNames[currentFile]);
-        reader.drawBMP(imageFiles[currentFile], tft, 10, 60);
+        tft.println(animalNames[currentFile - 1]);
+        reader.drawBMP(imageFiles[currentFile - 1], tft, 10, 60);
         // play sound here
         delay(1000);
         break;  // Move to next round
@@ -513,6 +516,8 @@ void checkAudio()
       isPlaying = false;
     }
   }
+  else
+    Serial.println("Player not available! [DEBUG]");
 }
 
 /// <summary>
@@ -521,6 +526,8 @@ void checkAudio()
 /// </summary>
 void playAudio()
 {
+  checkAudio();
+
   if (!isPlaying) // Only works if the audio player is not currently playing an audio, to prevent errors.
   {
     player.volume(volume);
@@ -565,6 +572,18 @@ void checkCardScan()
 
   while (!isValid || !isNew)
   {
+    if (backPressed)
+    { 
+      backPressed = false;
+      drawMenu();
+      scanBacked = true;
+      return;
+    }
+    if (brightnessPressed) { brightnessPressed = false; brightnessControl(); }
+
+    checkVolume();
+    checkAudio();
+
     if (rfid.PICC_IsNewCardPresent())     // Check if the card is present. If this fails, return to start of loop.
       isNew = true;
     else

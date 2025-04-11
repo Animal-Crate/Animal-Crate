@@ -1,12 +1,14 @@
 <p align="center"> <img alt="Animal Crate" width="900" height="300" src="https://github.com/Animal-Crate/Animal-Crate/blob/master/Team-Logo.png" /></p>
 
-This is a repository for the ECE 490/491 class. The code provided here is specifically open-source when all is said and done.
+This project is designed to create an animal noise toy that helps children to learn their animals and their sounds. It is specifically a toy that is meant to better cater to children and individuals with disabilities so that they can learn in a fun and constructive manner with a toy that is appealing and able to meet their needs.
 
-This is a capstone project that we are working on as a team, the system for all of our code and interactions.
+This is a capstone project for the University of Kentucky ECE 490/491 that we are working on as a team. This is the public, open-source repository for this project and all code within this project falls under the provided license in this repository, AGPL-3.0 License. The provided schematics, CAD designs, and other resources are suggestions for recreating this project from home.
 
 ---
 
 ## Our Goal
+The goal of this project is to design a child's toy that makes animal noises that is accessible to a wide-range of audiences, from children with disabilities or impairments to elderly with arthritis and compromised movement.
+
 The provided code will be organized, commented, and user-friendly to allow for the ultimate configuration based on needs and systems. This is our goal as the members working on this project, to ensure that it is robust and well-rounded, allowing those without prior coding knowledge to make changes to suit their needs.
 
 ## Prerequisites

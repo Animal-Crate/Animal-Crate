@@ -100,10 +100,8 @@ void setup() {
   attachInterrupt(BTN_PIN3, navigateISR, FALLING);
   attachInterrupt(BTN_PIN4, brightnessISR, FALLING);
 
-  // Fix: Configure PWM correctly
-  ledcSetup(channel, freq, resolution);
-  ledcAttachPin(BCK_LIGHT, channel);
-  ledcWrite(channel, brightness); 
+  ledcAttachChannel(BCK_LIGHT, freq, resolution, channel);
+  ledcWrite(BCK_LIGHT, brightness); // set initial brightness to half 50%
 
   randomSeed(analogRead(34)); // set it to un used pin
   drawMenu();
@@ -170,7 +168,7 @@ void moveSelector() {
 void brightnessControl() {
   levelIndex = (levelIndex + 1) % 8; // Cycle through brightness levels
   brightness = brightnessLevels[levelIndex]; // Update PWM value
-  ledcWrite(channel, brightness);
+  ledcWrite(BCK_LIGHT, brightness);
 }
 
 void selectOption() {

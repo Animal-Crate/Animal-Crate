@@ -1,0 +1,8 @@
+The provided files in this directory are for integration tests, and can be used to test multiple systems when recreating this project. Below are descriptions of the other files. Please refer to the [Prerequisites](https://github.com/Animal-Crate/Animal-Crate/blob/master/README.md) when downloading libraries for testing these integration programs.
+
+### AV_ScannerIntegration
+The `AV_ScannerIntegration.ino` file should be run in Arduino IDE for the appropriate setup. This may not perform correctly if executed in Platform IO due to the differences in the setup function for the display. This integration test is performed to ensure that the audio system, display/algorithm system, and scanner system work together.
+- It is suggested to have the DFPlayer Mini running on a DC Power Supply at about 4.50 Volts and 0.021 A (21 mA) with a common ground for the ESP32 and DC Power Supply. The DFPlayer Mini, ILI9341 board, and scanner have a large combined amperage that the ESP32 may not be able to supply, causing the audio system to not work as intended.
+
+### ScannerAudioIntegration
+The `ScannerAudioIntegration.ino` file should be run in Arduino IDE, but may work in the Platform IO if necessary to test there. This integration test is performed to ensure the audio system works as intended alongside the scanner system, and is also a separate test for ensuring that the scanning system works as intended with NFC Chips that are written into the program. This does not contain the updated functions used in the `AV_ScannerIntegration.ino` file, but contains the same structure, so testing should work seamlessly across both systems when testing scanner and audio.

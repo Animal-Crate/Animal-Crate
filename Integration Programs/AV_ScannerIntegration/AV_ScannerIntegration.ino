@@ -429,6 +429,12 @@ void gameMode()
       checkAudio();
       checkCardScan();
 
+      if (scanBacked)
+      {
+        scanBacked = false;
+        return;
+      }
+
       if (currentFile == targetAnimal)
       {
         // **Correct answer: update score and remove used animal**

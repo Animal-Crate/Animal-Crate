@@ -15,6 +15,9 @@ The provided code will be organized, commented, and user-friendly to allow for t
 Before compiling the programming in this repository, some libraries are necessary for the Arduino IDE. These libraries are not all contained here due to licensing.
 
 The following libraries are required for compiling and uploading to an ESP-32.
+- The Animal Toy System utilizes the following libraries:
+  - [Arduino LSM6DS3 Library](https://github.com/arduino-libraries/Arduino_LSM6DS3)
+  - [DFPlayerMiniFast](https://github.com/PowerBroker2/DFPlayerMini_Fast)
 - The Scanner System utilizes the following libraries:
   - [Adafruit ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library) (For Testing)
   - [MFRC522](https://github.com/Animal-Crate/Animal-Crate/tree/master/MFRC522)
@@ -29,4 +32,4 @@ The following libraries are required for compiling and uploading to an ESP-32.
   - [SdFat](https://github.com/greiman/SdFat)
 
 ## Acknowledgements
-Please note that the files shown in [MFRC522](https://github.com/Animal-Crate/Animal-Crate/tree/master/MFRC522) are taken from another repository. These are not licensed under this repository's license, and you can find more information in the README section in that directory.
+Please note that the files shown in [MFRC522](https://github.com/Animal-Crate/Animal-Crate/tree/master/_MFRC522) are taken from another repository. These are not licensed under this repository's license, and you can find more information in the README section in that directory.

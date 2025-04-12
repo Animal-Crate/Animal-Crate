@@ -1,0 +1,19 @@
+** Drc report for PROTOTYPE.kicad_pcb **
+** Created on 2025-04-05T16:05:08-0400 **
+
+** Found 3 DRC violations **
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; warning (excluded)
+    @(139.5250 mm, 102.9750 mm): Via [unconnected-(D2-K-Pad1)] on F.Cu - B.Cu
+[via_dangling]: Via is not connected or connected on only one layer
+    Local override; warning (excluded)
+    @(139.5250 mm, 105.9250 mm): Via [unconnected-(D2-A-Pad2)] on F.Cu - B.Cu
+[lib_footprint_mismatch]: Footprint 'DIP-18_500' does not match copy in library 'EYESPI_18PIN'.
+    Local override; warning (excluded)
+    @(57.1500 mm, 53.7600 mm): Footprint EYESPI_18IN_BREAKOUT_BOARD1
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** End of Report **

@@ -209,8 +209,8 @@ void setup()
   pinMode(NAVIGATE, INPUT_PULLUP);      // "Navigate" button
   pinMode(BRIGHTNESS, INPUT_PULLUP);    // "Brightness" button
   // - Button Interrupts
-  attachInterrupt(VOLUME_UP, ISR_volumeUp, FALLING);       // Attach interrupt to Volume Up button.
-  attachInterrupt(VOLUME_DOWN, ISR_volumeDown, FALLING);   // Attach interrupt to Volume Down button.
+  attachInterrupt(VOLUME_UP, ISR_volumeUp, FALLING);      // Attach interrupt to Volume Up button.
+  attachInterrupt(VOLUME_DOWN, ISR_volumeDown, FALLING);  // Attach interrupt to Volume Down button.
   attachInterrupt(BACK, ISR_BACK, FALLING);               // Attach interrupt to Back button.
   attachInterrupt(NEXT, ISR_NEXT, FALLING);               // Attach interrupt to Next button.
   attachInterrupt(NAVIGATE, ISR_NAVIGATE, FALLING);       // Attach interrupt to Navigate button.

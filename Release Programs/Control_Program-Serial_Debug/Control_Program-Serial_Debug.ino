@@ -400,8 +400,8 @@ void learningMode()
 void gameMode()
 {
   uint8_t score = 0;
-  uint8_t availableAnimals[6] = {0, 1, 2, 3, 4, 5};  // List of available animals
-  uint8_t remaining = 6;  // Total animals left in the game
+  uint8_t availableAnimals[TOTALANIMALS] = {ANIMAL_1, ANIMAL_2, ANIMAL_3, ANIMAL_4, ANIMAL_5, ANIMAL_6};  // MUST BE THE SAME AMOUNT OF ANIMALS AS TOTALANIMALS
+  uint8_t remaining = TOTALANIMALS;  // IS LINKED TO SAME SYSTEM AS availableAnimals
 
   backPressed = false;  // Reset back button flag before game starts
 

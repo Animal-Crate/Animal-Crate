@@ -202,8 +202,8 @@ void setup()
   pinMode(NAVIGATE, INPUT_PULLUP);      // "Navigate" button
   pinMode(BRIGHTNESS, INPUT_PULLUP);    // "Brightness" button
   // - Button Interrupts
-  attachInterrupt(VOLUME_UP, ISR_volumeUp, FALLING);       // Attach interrupt to Volume Up button.
-  attachInterrupt(VOLUME_DOWN, ISR_volumeDown, FALLING);   // Attach interrupt to Volume Down button.
+  attachInterrupt(VOLUME_UP, ISR_volumeUp, FALLING);      // Attach interrupt to Volume Up button.
+  attachInterrupt(VOLUME_DOWN, ISR_volumeDown, FALLING);  // Attach interrupt to Volume Down button.
   attachInterrupt(BACK, ISR_BACK, FALLING);               // Attach interrupt to Back button.
   attachInterrupt(NEXT, ISR_NEXT, FALLING);               // Attach interrupt to Next button.
   attachInterrupt(NAVIGATE, ISR_NAVIGATE, FALLING);       // Attach interrupt to Navigate button.
@@ -233,7 +233,7 @@ void setup()
 
   /* Start Display Setup */
   ledcAttachChannel(BCK_LIGHT, FREQ, RESOLUTION, CHANNEL);  // Setup backlight.
-  ledcWrite(BCK_LIGHT, brightness);                           // Set initial brightness to 50%.
+  ledcWrite(BCK_LIGHT, brightness);                         // Set initial brightness to 50%.
   Serial.println(F("<LED Screen Successfully Setup>"));     // Initialization for display.
 
   /* Confirmations for data, display in terminal. */
@@ -387,8 +387,8 @@ void learningMode()
 void gameMode()
 {
   uint8_t score = 0;
-  uint8_t availableAnimals[6] = {0, 1, 2, 3, 4, 5};  // List of available animals
-  uint8_t remaining = 6;  // Total animals left in the game
+  uint8_t availableAnimals[TOTALANIMALS] = {ANIMAL_1, ANIMAL_2, ANIMAL_3, ANIMAL_4, ANIMAL_5, ANIMAL_6};  // MUST BE THE SAME AMOUNT OF ANIMALS AS TOTALANIMALS
+  uint8_t remaining = TOTALANIMALS;  // IS LINKED TO SAME SYSTEM AS availableAnimals
 
   backPressed = false;  // Reset back button flag before game starts
 

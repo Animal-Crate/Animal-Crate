@@ -1,0 +1,28 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Animal Crate
+message: >-
+  If you reference or use this software, please cite it
+  using the citation provided here.
+type: software
+authors:
+  - name: Team 06 - Animal Crate
+    date-start: '2024-09-01'
+    date-end: '2025-05-10'
+repository-code: 'https://github.com/Animal-Crate/Animal-Crate'
+abstract: >-
+  This project is designed to create an animal noise toy
+  that helps children to learn their animals and their
+  sounds. It is specifically a toy that is meant to better
+  cater to children and individuals with disabilities so
+  that they can learn in a fun and constructive manner with
+  a toy that is appealing and able to meet their needs.
+keywords:
+  - Animal Noise Toy
+  - Arduino IDE
+  - CAD Designs
+  - Open-Source
+  - Capstone Project
+license: AGPL-3.0

@@ -277,7 +277,7 @@ void loop()
   }
   else if (currentMode == LEARNING) { learningMode(); }
 
-  delay(500);
+  delay(1000);
 }
 
 /* ------------------------------------------------------------ */
@@ -487,7 +487,7 @@ void gameMode()
         tft.println("Place the correct animal");
       }
 
-      delay(500);  // Prevent rapid detection spam
+      delay(700);  // Prevent rapid detection spam
     }
   }
 
@@ -545,8 +545,6 @@ void checkAudio()
       isPlaying = false;
     }
   }
-  else
-    Serial.println("Player not available! [DEBUG]");
 }
 
 /// <summary>
@@ -564,7 +562,7 @@ void playAudio()
     Serial.println("Playing sound");
     player.play(currentFile);
     isPlaying = true;
-    delay(200); // Debounce delay
+    delay(500); // Debounce delay
   }
 }
 
@@ -631,7 +629,7 @@ void checkCardScan()
       isNew = false;
     }
 
-    delay(300); // Delay 300 milliseconds to prevent repeat scans of same card.
+    delay(500); // Delay 300 milliseconds to prevent repeat scans of same card.
   }
 
   updateUID();  // Update the UID after a successful scan, no matter what.

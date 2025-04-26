@@ -2055,7 +2055,7 @@
 	)
 	(wire
 		(pts
-			(xy 146.05 62.23) (xy 146.05 63.5)
+			(xy 146.05 54.61) (xy 146.05 63.5)
 		)
 		(stroke
 			(width 0)
@@ -2174,7 +2174,7 @@
 		(uuid "ff155a4b-6ffb-4e1c-979e-13e1c20f6df0")
 	)
 	(rectangle
-		(start 76.2 26.67)
+		(start 76.2 25.4)
 		(end 205.74 90.17)
 		(stroke
 			(width 0)
@@ -2185,19 +2185,9 @@
 		)
 		(uuid d1a3d0cc-d44c-4f70-948c-76e189b86ed4)
 	)
-	(text "Power Delivery Sub-Project"
-		(exclude_from_sim no)
-		(at 104.902 29.718 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-			)
-		)
-		(uuid "8a1ea366-d29c-4747-a7cb-737f3ab2630e")
-	)
 	(text "GND\n6V Input\n3.3V Output\n3.3V Output\n3.3V Output\nGND\nGND\nGND\nON/OFF Signal\nState of Charge \nSignal"
 		(exclude_from_sim no)
-		(at 183.388 48.514 0)
+		(at 182.372 42.926 0)
 		(effects
 			(font
 				(size 1.524 1.524)
@@ -2801,6 +2791,7 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
 			)
 		)
 		(property "Value" "Conn_01x10"
@@ -3047,75 +3038,6 @@
 			(project "Power System"
 				(path "/f9f56fcb-638a-40d4-be6c-886cde0af03d"
 					(reference "L1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 146.05 58.42 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "7f4f18f1-070a-495a-99c3-487109cb3416")
-		(property "Reference" "R2-2"
-			(at 144.018 61.214 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1.6k"
-			(at 146.05 60.706 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
-			(at 144.272 58.42 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 146.05 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 146.05 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6695b440-ab18-4ae6-9f7c-669e1539d129")
-		)
-		(pin "2"
-			(uuid "948df7ab-d869-4e80-9b18-96982f6ff6af")
-		)
-		(instances
-			(project "Power System"
-				(path "/f9f56fcb-638a-40d4-be6c-886cde0af03d"
-					(reference "R2-2")
 					(unit 1)
 				)
 			)

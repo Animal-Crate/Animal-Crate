@@ -533,7 +533,7 @@ void playAudio()
 
     player.play(currentFile);
     isPlaying = true;
-    delay(200); // Debounce delay
+    delay(500); // Debounce delay
   }
 }
 
@@ -593,7 +593,7 @@ void checkCardScan()
       isNew = false;
     }
 
-    delay(300); // Delay 300 milliseconds to prevent repeat scans of same card.
+    delay(500); // Delay 300 milliseconds to prevent repeat scans of same card.
   }
 
   updateUID();  // Update the UID after a successful scan, no matter what.

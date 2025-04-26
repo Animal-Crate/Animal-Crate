@@ -615,9 +615,9 @@ void checkCharge()
 
   switch (charge)
   {
-    case 0: dacWrite(LED_PIN, 200); break;
-    case 1: dacWrite(LED_PIN, 180); break;
-    case 2: dacWrite(LED_PIN, 160); break;
+    case 0: dacWrite(LED_PIN, 210); break;
+    case 1: dacWrite(LED_PIN, 190); break;
+    case 2: dacWrite(LED_PIN, 170); break;
     default: dacWrite(LED_PIN, 140); break; // Should never get here.
   }
 

@@ -371,7 +371,7 @@ void learningMode()
 void gameMode()
 {
   uint8_t score = 0;
-  uint8_t availableAnimals[6] = {0, 1, 2, 3, 4, 5};  // List of available animals
+  uint8_t availableAnimals[6] = {ANIMAL_1, ANIMAL_2, ANIMAL_3, ANIMAL_4, ANIMAL_5, ANIMAL_6};  // List of available animals
   uint8_t remaining = 6;  // Total animals left in the game
 
   backPressed = false;  // Reset back button flag before game starts
@@ -387,14 +387,14 @@ void gameMode()
     tft.setTextColor(ILI9341_WHITE);
     tft.println("Game Mode");
 
-    switch(randIndex)
+    switch(targetAnimal)
     {
-      case 0: currentFile = COW; break;
-      case 1: currentFile = DOG; break;
-      case 2: currentFile = SHEEP; break;
-      case 3: currentFile = HORSE; break;
-      case 4: currentFile = CHICKEN; break;
-      case 5: currentFile = PIG; break;
+      case 1: currentFile = COW; break;
+      case 2: currentFile = DOG; break;
+      case 3: currentFile = SHEEP; break;
+      case 4: currentFile = HORSE; break;
+      case 5: currentFile = CHICKEN; break;
+      case 6: currentFile = PIG; break;
       default: currentFile = COW; break;
     }
     playAudio();

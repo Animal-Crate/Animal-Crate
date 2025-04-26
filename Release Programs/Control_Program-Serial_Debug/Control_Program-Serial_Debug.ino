@@ -416,14 +416,14 @@ void gameMode()
     tft.setTextColor(ILI9341_WHITE);
     tft.println("Game Mode");
 
-    switch(randIndex)
+    switch(targetAnimal)
     {
-      case 0: currentFile = COW; break;
-      case 1: currentFile = DOG; break;
-      case 2: currentFile = SHEEP; break;
-      case 3: currentFile = HORSE; break;
-      case 4: currentFile = CHICKEN; break;
-      case 5: currentFile = PIG; break;
+      case 1: currentFile = COW; break;
+      case 2: currentFile = DOG; break;
+      case 3: currentFile = SHEEP; break;
+      case 4: currentFile = HORSE; break;
+      case 5: currentFile = CHICKEN; break;
+      case 6: currentFile = PIG; break;
       default: currentFile = COW; break;
     }
     playAudio();

@@ -39,7 +39,10 @@
 #define BACK              22  // Pin Location for Button Input - Back
 #define NEXT              14  // Pin Location for Button Input - Next
 #define NAVIGATE          12  // Pin Location for Button Input - Navigate
-#define BRIGHTNESS        33  // Pin Location for Button Input - Brightness  
+#define BRIGHTNESS        33  // Pin Location for Button Input - Brightness
+// - Charge Detection
+#define ADC_PIN           35  // Pin Location for Input Voltage Detection
+#define LED_PIN           25  // Pin Location for DAC Output to LED
 
 /* Definitions for Constant Values */
 // - Animal Definitions
@@ -84,13 +87,8 @@ enum animal_ID : uint8_t    // File selection integer enumerator. This acts to d
   PIG = ANIMAL_6,
   SOUND_UP = UPDATE_SOUND
 };
-
-enum mode : uint8_t         // Mode selection integer enumerator. This selects the current mode that algorithm is in and whether to display the menu.
-{
-  MENU,
-  LEARNING,
-  GAME
-};
+enum mode : uint8_t { MENU, LEARNING, GAME };                     // Mode selection integer enumerator. This selects the current mode that algorithm is in and whether to display the menu.
+enum battery_level : uint8_t { GREEN = 0, YELLOW = 1, RED = 2 };  // Charge selection to prevent flickering charge levels when averaging several different charges.
 
 /* Class/Enumerator Creations & Associations */
 // - Classes
@@ -103,6 +101,7 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);  // Creating class for 
 // - Enumerators
 animal_ID currentFile = COW;  // DEFINES THE FILES SELECTION!
 mode currentMode = MENU;      // DEFINES THE GAMEMODE
+battery_level charge = GREEN; // DEFINES THE CHARGE LEVEL OF BATTERY
 
 /* Global Variables */
 // - Button Booleans    :   Creates booleans for labeling when buttons are pressed to prevent debounce.
@@ -120,6 +119,7 @@ const char bothTrigger[] = {"Volume was Changed to: "};                         
 const uint8_t brightnessLevels[] = {32, 64, 96, 128, 160, 192, 232, 255};                                           // Create an array of integers for brigthness levels.
 const char* animalNames[] = {"Cow", "Dog", "Sheep", "Horse", "Chicken", "Pig"};                                     // Create an array of strings for animal names for printing.
 const char* imageFiles[] = {"3cow3.bmp", "3dog2.bmp", "3sheep1.bmp", "3horse1.bmp", "3chicken4.bmp", "3pig3.bmp"};  // Create an array of strings for file names for images pertaining to animals.
+const float SCALE_FACTOR = 2.95*5.08/4.7;                                                                           // Adjustment value for voltage divider.
 // - Starting Values & Globals
 volatile bool isPlaying = 0;            // Create a boolean for whether the audio player is playing audio.
 volatile bool scanBacked = 0;           // Create a boolean for whether the scan has been backed or not.
@@ -128,6 +128,8 @@ volatile uint8_t brightness = 128;      // Brightness Control Integer. Initial b
 volatile uint8_t levelIndex = 3;        // Brightness Array Indexer.
 volatile uint8_t selectedOption = 0;    // Option selector integer.
 char uid[32];                           // Create a 32 byte array for UID (well over what it needs).
+volatile uint16_t adcValue = 0;         // Create a 16-bit value to hold the ADC value (0-4095). (Volatile for safety.)
+volatile float voltage = 0;             // Create a float value that will change for voltage. (Volatile for safety.)
 
 /* Interrupt Service Routines for button presses. */
 /// <summary>
@@ -247,6 +249,7 @@ void loop()
 
   checkVolume();
   checkAudio();
+  checkCharge();
 
   delay(1000);
 }
@@ -335,6 +338,7 @@ void learningMode()
 
     checkVolume();
     checkAudio();
+    checkCharge();
       
     tft.fillScreen(ILI9341_BLACK);
     tft.setCursor(100, 0);
@@ -400,6 +404,7 @@ void gameMode()
       default: currentFile = COW; break;
     }
     playAudio();
+    checkCharge();
     
     delay(1000);
 
@@ -413,6 +418,7 @@ void gameMode()
 
       checkVolume();
       checkAudio();
+      checkCharge();
       checkCardScan();
 
       if (scanBacked)
@@ -549,6 +555,30 @@ void checkVolume()
 
     currentFile = SOUND_UP;
     playAudio();
+  }
+}
+
+/// <summary>
+/// <summary>
+///   Checks the charge by reading from the ADC pin and setting the enumerator for the charge level.
+///   ** Sets an enumerator.
+/// </summary>
+void checkCharge()
+{
+  adcValue = analogRead(ADC_PIN);                       // Read ADC Value (0-4095)
+  voltage = (adcValue / 4095.0) * 3.3 * SCALE_FACTOR;   // Adjust the Voltage
+
+  if (voltage >= 4.2 && voltage <= 4.8 && charge != YELLOW)
+    charge = YELLOW;
+  else if (voltage < 4.2)
+    charge = RED;
+
+  switch (charge)
+  {
+    case 0: dacWrite(LED_PIN, 210); break;  // Green
+    case 1: dacWrite(LED_PIN, 190); break;  // Yellow
+    case 2: dacWrite(LED_PIN, 170); break;  // Red
+    default: dacWrite(LED_PIN, 140); break; // Should never get here.
   }
 }
 

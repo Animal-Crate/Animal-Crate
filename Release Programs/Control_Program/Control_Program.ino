@@ -49,6 +49,7 @@
 #define ANIMAL_4          4     // Horse is on the 004.mp3 file.
 #define ANIMAL_5          5     // Chicken is on the 005.mp3 file.
 #define ANIMAL_6          6     // Pig is on the 006.mp3 file.
+#define UPDATE_SOUND      7     // Beep for updating MP3, 007.mp3 file.
 // - Display Definitions
 #define FREQ              5000  // PWM Frequency
 #define CHANNEL           1     // PWM Channel
@@ -80,7 +81,8 @@ enum animal_ID : uint8_t    // File selection integer enumerator. This acts to d
   SHEEP = ANIMAL_3,
   HORSE = ANIMAL_4,
   CHICKEN = ANIMAL_5,
-  PIG = ANIMAL_6
+  PIG = ANIMAL_6,
+  SOUND_UP = UPDATE_SOUND
 };
 
 enum mode : uint8_t         // Mode selection integer enumerator. This selects the current mode that algorithm is in and whether to display the menu.
@@ -238,19 +240,15 @@ void setup()
 
 void loop()
 {
-  if (currentMode == MENU || currentMode == GAME)
-  {
-    if (backPressed) { backPressed = false; drawMenu(); }
-    if (nextPressed) { nextPressed = false; selectOption(); }
-    if (navigatePressed) { navigatePressed = false; moveSelector(); }
-    if (brightnessPressed) { brightnessPressed = false; brightnessControl(); }
+  if (backPressed) { backPressed = false; drawMenu(); }
+  if (nextPressed) { nextPressed = false; selectOption(); }
+  if (navigatePressed) { navigatePressed = false; moveSelector(); }
+  if (brightnessPressed) { brightnessPressed = false; brightnessControl(); }
 
-    checkVolume();
-    checkAudio();
-  }
-  else if (currentMode == LEARNING) { learningMode(); }
+  checkVolume();
+  checkAudio();
 
-  delay(500);
+  delay(1000);
 }
 
 /* ------------------------------------------------------------ */
@@ -310,11 +308,13 @@ void selectOption()
   if (selectedOption == 0)
   {
     currentMode = LEARNING;
+    nextPressed = 0;
     learningMode();
   } 
   else
   {
     currentMode = GAME;
+    nextPressed = 0;
     gameMode();
   }
 }
@@ -337,21 +337,23 @@ void learningMode()
     checkAudio();
       
     tft.fillScreen(ILI9341_BLACK);
-    tft.setCursor(0, 0);
+    tft.setCursor(100, 0);
     tft.setTextSize(2);
     tft.setTextColor(ILI9341_WHITE);
     tft.println("Learning Mode");
-    tft.setCursor(0, 20);
+    tft.setCursor(100, 20);
     tft.println("Place animal");
 
     checkCardScan();
     if (scanBacked)
     {
       scanBacked = false;
+      currentMode = MENU;
+      drawMenu();
       return;
     }
 
-    tft.setCursor(50, 40);
+    tft.setCursor(140, 40);
     tft.setTextSize(2);
     tft.setTextColor(ILI9341_WHITE);
     tft.println(animalNames[currentFile - 1]);
@@ -382,7 +384,7 @@ void gameMode()
     uint8_t targetAnimal = availableAnimals[randIndex];  // Select a random animal
 
     tft.fillScreen(ILI9341_BLACK);
-    tft.setCursor(0, 0);
+    tft.setCursor(100, 0);
     tft.setTextSize(2);
     tft.setTextColor(ILI9341_WHITE);
     tft.println("Game Mode");
@@ -401,7 +403,7 @@ void gameMode()
     
     delay(1000);
 
-    tft.setCursor(0, 20);
+    tft.setCursor(20, 20);
     tft.println("Place the correct animal");
 
     while (true)
@@ -416,6 +418,8 @@ void gameMode()
       if (scanBacked)
       {
         scanBacked = false;
+        currentMode = MENU;
+        drawMenu();
         return;
       }
 
@@ -427,11 +431,11 @@ void gameMode()
         remaining--;  // Reduce available options
 
         //tft.fillScreen(ILI9341_BLACK);
-        tft.setCursor(40, 40);
+        tft.setCursor(50, 40);
         tft.setTextSize(2);
         tft.setTextColor(ILI9341_GREEN);
         tft.println("Correct!");
-        tft.setCursor(160, 40);
+        tft.setCursor(170, 40);
         tft.println(animalNames[currentFile - 1]);
         reader.drawBMP(imageFiles[currentFile - 1], tft, 10, 60);
         // play sound here
@@ -442,7 +446,7 @@ void gameMode()
       {
         // **Incorrect answer: Show "Try Again" message**
         //tft.fillScreen(ILI9341_BLACK);
-        tft.setCursor(40, 40);
+        tft.setCursor(100, 40);
         tft.setTextSize(2);
         tft.setTextColor(ILI9341_RED);
         tft.println("Try Again");
@@ -450,11 +454,11 @@ void gameMode()
         
         // **Re-display the prompt**
         tft.fillScreen(ILI9341_BLACK);
-        tft.setCursor(0, 0);
+        tft.setCursor(100, 0);
         tft.setTextSize(2);
         tft.setTextColor(ILI9341_WHITE);
         tft.println("Game Mode");
-        tft.setCursor(0, 20);
+        tft.setCursor(20, 20);
         tft.println("Place the correct animal");
       }
 
@@ -464,15 +468,17 @@ void gameMode()
 
   // **Game Over: Display final score and return to menu**
   tft.fillScreen(ILI9341_BLACK);
-  tft.setCursor(0, 0);
+  tft.setCursor(100, 0);
   tft.setTextSize(2);
   tft.setTextColor(ILI9341_WHITE);
   tft.println("Game Over");
-  tft.setCursor(0, 20);
+  tft.setCursor(100, 110);
   tft.print("Score: ");
   tft.println(score);
   delay(3000);
+  currentMode = MENU;
   drawMenu();
+  return;
 }
 
 /* ---------------------------------------------------- */
@@ -540,6 +546,9 @@ void checkVolume()
   {
     upPressed = false;
     downPressed = false;
+
+    currentFile = SOUND_UP;
+    playAudio();
   }
 }
 

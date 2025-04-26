@@ -13,6 +13,9 @@ The `Algorithm-Feedback.ino` file is used for testing the individual buttons (fo
 ### Animal_Toy
 The `Animal_Toy.ino` file is used for testing the individual toys and their functionalities, including the DFPlayer Minis that are used in each of the toys. This tests the gyro controls in the microcontrollers that were used in the toys, and is not necessary in the final project if ignoring the individual toys' functionality.
 
+### Charge_Detection
+The `Charge_Detection.ino` file is used for testing the functionality of the power LED in the system to display a color based on the charge of the system.
+
 ### Power-System_Debug
 The `Power-System_Debug.ino` file is used for testing the functionality of a dedicated power system following the same design used in this project, which is 4 C-Type Batteries with components to step the voltage down for the required voltage for each of the parts used in this project in the other subsystems.
 

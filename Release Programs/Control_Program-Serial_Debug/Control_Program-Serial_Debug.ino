@@ -608,9 +608,9 @@ void checkCharge()
   adcValue = analogRead(ADC_PIN);                       // Read ADC Value (0-4095)
   voltage = (adcValue / 4095.0) * 3.3 * SCALE_FACTOR;   // Adjust the Voltage
 
-  if (voltage >= 4.5 && voltage <= 5.5 && charge != YELLOW)
+  if (voltage >= 4.2 && voltage <= 4.8 && charge != YELLOW)
     charge = YELLOW;
-  else if (voltage < 4.5)
+  else if (voltage < 4.2)
     charge = RED;
 
   switch (charge)

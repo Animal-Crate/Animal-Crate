@@ -1,12 +1,12 @@
 %TF.GenerationSoftware,KiCad,Pcbnew,8.0.8*%
-%TF.CreationDate,2025-04-10T20:03:44-04:00*%
+%TF.CreationDate,2025-04-16T10:37:28-04:00*%
 %TF.ProjectId,DFPlayer and LCD,4446506c-6179-4657-9220-616e64204c43,rev?*%
 %TF.SameCoordinates,Original*%
 %TF.FileFunction,Copper,L1,Top*%
 %TF.FilePolarity,Positive*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 8.0.8) date 2025-04-10 20:03:44*
+G04 Created by KiCad (PCBNEW 8.0.8) date 2025-04-16 10:37:28*
 %MOMM*%
 %LPD*%
 G01*
@@ -18,10 +18,7 @@ G04 APERTURE LIST*
 %ADD11O,1.700000X1.700000*%
 %TD*%
 %TA.AperFunction,ComponentPad*%
-%ADD12R,1.308000X1.308000*%
-%TD*%
-%TA.AperFunction,ComponentPad*%
-%ADD13C,1.308000*%
+%ADD12C,1.700000*%
 %TD*%
 G04 APERTURE END LIST*
 D10*
@@ -39,17 +36,17 @@ X162051998Y-69088000D03*
 %TO.N,Net-(J1-Pin_4)*%
 X162051998Y-66548000D03*
 %TO.P,J1,5,Pin_5*%
-%TO.N,Net-(EYESPI_18IN_BREAKOUT_BOARD1-Gnd)*%
+%TO.N,Net-(J1-Pin_5)*%
 X162051998Y-64008000D03*
 %TO.P,J1,6,Pin_6*%
 %TO.N,Net-(J1-Pin_6)*%
 X162051998Y-61468000D03*
 %TD*%
-D12*
+D10*
 %TO.P,U1,1,VCC*%
 %TO.N,Net-(J1-Pin_1)*%
 X169290998Y-74140000D03*
-D13*
+D12*
 %TO.P,U1,2,RX*%
 %TO.N,Net-(J1-Pin_2)*%
 X169290998Y-71600000D03*
@@ -66,7 +63,7 @@ X169290998Y-63980000D03*
 %TO.N,Net-(J1-Pin_4)*%
 X169290998Y-61440000D03*
 %TO.P,U1,7,GND*%
-%TO.N,Net-(EYESPI_18IN_BREAKOUT_BOARD1-Gnd)*%
+%TO.N,Net-(J1-Pin_5)*%
 X169290998Y-58900000D03*
 %TO.P,U1,8,SPK2*%
 %TO.N,Net-(J1-Pin_6)*%

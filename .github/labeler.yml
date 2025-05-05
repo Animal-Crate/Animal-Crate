@@ -16,6 +16,8 @@
   - changed-files:
     - any-glob-to-any-file:
       - "**/*.3mf"
+      - "**/*.fbx"
+      - "**/*.obj"
       - "**/*.step"
       - "**/*.STEP"
       - "**/*.stl"

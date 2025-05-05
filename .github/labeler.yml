@@ -12,6 +12,15 @@
         - "**/*.cpp"
         - "**/*.ino"
 
+"Changes: CAD Files":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.3mf"
+      - "**/*.step"
+      - "**/*.STEP"
+      - "**/*.stl"
+      - "**/*.STL"
+
 "Changes: Headers":
   - changed-files:
     -  any-glob-to-any-file: "**/*.h"
@@ -32,6 +41,7 @@
     - any-glob-to-any-file:
       - "**/*.txt"
       - "**/*.md"
+      - "**/*.pdf"
 
 "Changes: Images":
   - changed-files:
@@ -39,6 +49,7 @@
       - "**/*.png"
       - "**/*.jpg"
       - "**/*.jpeg"
+      - "**/*.svg"
       - "**/*.webp"
 
 "Changes: PCB Files":
